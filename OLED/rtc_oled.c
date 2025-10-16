@@ -1,3 +1,8 @@
+// just initialize rtc and i2c
+
+
+
+
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
@@ -46,22 +51,24 @@ I2C_HandleTypeDef hi2c1;
 RTC_HandleTypeDef hrtc;
 
 /* USER CODE BEGIN PV */
-
-RTC_TimeTypeDef timee;
-RTC_DateTypeDef datee;
+RTC_TimeTypeDef tim;
+RTC_DateTypeDef dat;
+char format[5]={0};
+char format1[5]={0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_RTC_Init(void);
 static void MX_I2C1_Init(void);
+static void MX_RTC_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
 /* USER CODE END 0 */
 
 /**
@@ -92,10 +99,15 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-
+  MX_GPIO_Init();
+  MX_I2C1_Init();
+  MX_RTC_Init();
   /* USER CODE BEGIN 2 */
-  char buffer[32];
-
+  SSD1306_Init();
+  SSD1306_Clear();
+  SSD1306_GotoXY(5, 10);
+  ssd1306_write("Atharva Kadam", Font_7x10);
+  SSD1306_UpdateScreen();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -105,28 +117,17 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  // Get current time and date
-	      HAL_RTC_GetTime(&hrtc, &timee, RTC_FORMAT_BIN);
-	      HAL_RTC_GetDate(&hrtc, &datee, RTC_FORMAT_BIN); // Must follow GetTime
+	  SSD1306_GotoXY(5, 20);
+	  HAL_RTC_GetTime(&hrtc, &tim, RTC_FORMAT_BIN);
+	  sprintf(format,"%d:%d:%d",tim.Hours,tim.Minutes,tim.Seconds);
+	  ssd1306_write(format, Font_7x10);
 
-	      // Clear display before writing new data
-	      SSD1306_Clear();
+	  SSD1306_GotoXY(5, 30);
+	  HAL_RTC_GetDate(&hrtc, &dat, RTC_FORMAT_BIN);
+	  sprintf(format1,"%d-%d-%d",dat.Date,dat.Month,dat.Year);
+	  ssd1306_write(format1, Font_7x10);
 
-	      // Format and display time
-	      sprintf(buffer, "Time: %02d:%02d:%02d", timee.Hours, timee.Minutes, timee.Seconds);
-	      SSD1306_GotoXY(0, 0);
-	      SSD1306_Puts(buffer, &Font_7x10, 1);
-
-	      // Format and display date
-	      sprintf(buffer, "Date: %02d-%02d-20%02d", datee.Date, datee.Month, datee.Year);
-	      SSD1306_GotoXY(0, 15);
-	      SSD1306_Puts(buffer, &Font_7x10, 1);
-
-	      // Update display
-	      SSD1306_UpdateScreen();
-
-	      // Refresh every 1 second
-	      HAL_Delay(1000);
+	  SSD1306_UpdateScreen();
   }
   /* USER CODE END 3 */
 }
@@ -251,22 +252,22 @@ static void MX_RTC_Init(void)
 
   /** Initialize RTC and set the Time and Date
   */
-  sTime.Hours = 0x5;
-  sTime.Minutes = 0x11;
-  sTime.Seconds = 0x12;
+  sTime.Hours = 10;
+  sTime.Minutes = 10;
+  sTime.Seconds = 1;
   sTime.TimeFormat = RTC_HOURFORMAT12_AM;
   sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
   sTime.StoreOperation = RTC_STOREOPERATION_RESET;
-  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
+  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK)
   {
     Error_Handler();
   }
   sDate.WeekDay = RTC_WEEKDAY_THURSDAY;
   sDate.Month = RTC_MONTH_OCTOBER;
-  sDate.Date = 0x16;
-  sDate.Year = 0x0;
+  sDate.Date = 16;
+  sDate.Year = 25;
 
-  if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
+  if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK)
   {
     Error_Handler();
   }
@@ -285,9 +286,6 @@ static void MX_GPIO_Init(void)
 {
   /* USER CODE BEGIN MX_GPIO_Init_1 */
 
-	  SSD1306_Init();
-	  SSD1306_Clear();
-	  SSD1306_UpdateScreen();
   /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
