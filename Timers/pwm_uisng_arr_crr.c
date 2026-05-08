@@ -14,3 +14,9 @@ while(1)
         HAL_Delay(10);
     }
 }
+
+
+/*
+ARR defines the total PWM period, while the compare value (CCR) determines how long the signal remains HIGH within that period. 
+Setting CCR to ARR/2 generates a 50% duty cycle square wave, which is commonly used for reliable stepper motor pulse generation.
+*/
