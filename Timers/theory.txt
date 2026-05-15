@@ -1,0 +1,7 @@
+Prescaler → divides timer clock
+ARR → decides timer period/frequency
+CCR → controls pulse width
+Duty cycle → HIGH time percentage
+Changing CCR changes LED brightness or motor speed
+PWM frequency depends on PSC and ARR
+PWM duty cycle depends on CCR and ARR
